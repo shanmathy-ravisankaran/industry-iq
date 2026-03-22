@@ -92,7 +92,14 @@ def fetch_live_headlines(brand: str, industry: str, page_size: int = 50) -> list
 
 
 def fetch_headlines(brand: str, industry: str, page_size: int = 50) -> list[str]:
-    headlines = fetch_live_headlines(brand=brand, industry=industry, page_size=page_size)
+    print(f"[NewsFetcher] Fetching headlines for brand={brand} industry={industry}")
+    api_key = os.getenv("NEWSAPI_KEY")
+    print(f"[NewsFetcher] API key present: {bool(api_key)}")
+    try:
+        headlines = fetch_live_headlines(brand=brand, industry=industry, page_size=page_size)
+    except Exception as e:
+        print(f"[NewsFetcher] ERROR: {e}")
+        return []
     if len(headlines) >= 5:
         return headlines
     return load_financial_news_sample(page_size)
