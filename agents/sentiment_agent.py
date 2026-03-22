@@ -41,6 +41,20 @@ def score_headline(text: str) -> dict:
 
 def load_financial_news_sample(n: int = 50) -> list[str]:
     csv_path = os.path.join("data", "sentiment", "all-data.csv")
+    if not os.path.exists(csv_path):
+        print("[SentimentAgent] CSV not found - using default headlines")
+        return [
+            "Company reports strong quarterly earnings growth",
+            "Market faces headwinds amid economic uncertainty",
+            "Industry outlook remains positive for next quarter",
+            "Revenue exceeds analyst expectations significantly",
+            "Cost cutting measures impact workforce and operations",
+            "New product launch receives positive market reception",
+            "Supply chain disruptions affect business performance",
+            "Strategic partnership announced to drive growth",
+            "Regulatory challenges create uncertainty for sector",
+            "Innovation investment shows promising early results",
+        ]
     df = pd.read_csv(csv_path, encoding="latin-1", header=None, names=["label", "text"])
     return df["text"].dropna().head(n).tolist()
 
