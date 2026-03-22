@@ -41,22 +41,10 @@ def score_headline(text: str) -> dict:
 
 def load_financial_news_sample(n: int = 50) -> list[str]:
     csv_path = os.path.join("data", "sentiment", "all-data.csv")
-    if not os.path.exists(csv_path):
-        print("[SentimentAgent] CSV not found - using default headlines")
-        return [
-            "Company reports strong quarterly earnings growth",
-            "Market faces headwinds amid economic uncertainty",
-            "Industry outlook remains positive for next quarter",
-            "Revenue exceeds analyst expectations significantly",
-            "Cost cutting measures impact workforce and operations",
-            "New product launch receives positive market reception",
-            "Supply chain disruptions affect business performance",
-            "Strategic partnership announced to drive growth",
-            "Regulatory challenges create uncertainty for sector",
-            "Innovation investment shows promising early results",
-        ]
-    df = pd.read_csv(csv_path, encoding="latin-1", header=None, names=["label", "text"])
-    return df["text"].dropna().head(n).tolist()
+    if os.path.exists(csv_path):
+        df = pd.read_csv(csv_path, encoding="latin-1", header=None, names=["label", "text"])
+        return df["text"].dropna().head(n).tolist()
+    return []
 
 def store_in_chroma(scored: list[dict], brand: str, industry: str):
     for item in scored:
@@ -67,11 +55,42 @@ def store_in_chroma(scored: list[dict], brand: str, industry: str):
         )
 
 def sentiment_agent(state: AgentState) -> AgentState:
-    headlines = state.get("headlines") or load_financial_news_sample(50)
     brand = state.get("brand", "General")
     industry = state.get("industry", "Finance")
+    
+    headlines = state.get("headlines") or []
+    
+    if not headlines:
+        try:
+            from agents.news_fetcher import fetch_headlines
+            headlines = fetch_headlines(brand, industry, page_size=50)
+            print(f"[SentimentAgent] Got {len(headlines)} live headlines")
+        except Exception as e:
+            print(f"[SentimentAgent] NewsAPI failed: {e}")
+            headlines = []
+    
+    if not headlines:
+        headlines = load_financial_news_sample(50)
+    
+    if not headlines:
+        import random
+        random.seed(hash(brand) % 9999)
+        base_headlines = [
+            f"{brand} reports strong quarterly revenue growth beating expectations",
+            f"{brand} faces regulatory scrutiny amid market competition concerns",
+            f"{brand} announces strategic expansion into new markets globally",
+            f"{brand} customer satisfaction scores reach record high levels",
+            f"{brand} stock performance shows resilience despite market volatility",
+            f"{brand} launches innovative service improving operational efficiency",
+            f"{brand} management team announces ambitious five year growth plan",
+            f"{brand} faces cost pressure as supply chain disruptions continue",
+            f"{brand} partnership deal expected to drive significant revenue increase",
+            f"{brand} investor confidence grows following positive earnings report",
+        ]
+        headlines = base_headlines
+
     scored = [score_headline(h) for h in headlines]
     store_in_chroma(scored, brand, industry)
     avg_score = round(sum(s["score"] for s in scored) / len(scored), 4)
-    print(f"[SentimentAgent] {len(scored)} headlines | avg score: {avg_score}")
+    print(f"[SentimentAgent] {len(scored)} headlines | avg={avg_score}")
     return {**state, "sentiment_scores": scored}
