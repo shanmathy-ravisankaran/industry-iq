@@ -51,7 +51,7 @@ def save_run(
     insight_report: str,
 ) -> int:
     with get_connection() as conn:
-        timestamp = datetime.now(timezone.utc).astimezone(CST).strftime("%Y-%m-%d %H:%M:%S")
+        timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         cursor = conn.execute(
             """
             INSERT INTO runs (
@@ -83,6 +83,19 @@ def save_run(
         )
         conn.commit()
         return int(cursor.lastrowid)
+
+
+def _to_client_timestamp(raw_timestamp: str) -> str:
+    try:
+        if raw_timestamp.endswith("Z") or "+" in raw_timestamp[10:]:
+            dt = datetime.fromisoformat(raw_timestamp.replace("Z", "+00:00"))
+        else:
+            # Older rows were stored as America/Chicago local time without timezone info.
+            naive = datetime.strptime(raw_timestamp, "%Y-%m-%d %H:%M:%S")
+            dt = naive.replace(tzinfo=CST).astimezone(timezone.utc)
+        return dt.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    except Exception:
+        return raw_timestamp
 
 
 def get_recent_runs(limit: int = 10, brand: str | None = None, industry: str | None = None) -> list[dict]:
@@ -120,4 +133,10 @@ def get_recent_runs(limit: int = 10, brand: str | None = None, industry: str | N
     with get_connection() as conn:
         rows = conn.execute(query, params).fetchall()
 
-    return [dict(row) for row in rows]
+    normalized_rows = []
+    for row in rows:
+        item = dict(row)
+        item["timestamp"] = _to_client_timestamp(str(item["timestamp"]))
+        normalized_rows.append(item)
+
+    return normalized_rows

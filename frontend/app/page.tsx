@@ -90,14 +90,15 @@ function fmtConfidence(value: number | undefined) {
 }
 
 function formatLocalTime(rawTimestamp: string): string {
-  const cleaned = rawTimestamp.replace(" ", "T") + "Z";
-  const date = new Date(cleaned);
+  const date = new Date(rawTimestamp);
+  if (Number.isNaN(date.getTime())) return rawTimestamp;
   return date.toLocaleString(undefined, {
     month: "short",
     day: "numeric",
     hour: "numeric",
     minute: "2-digit",
     hour12: true,
+    timeZoneName: "short",
   });
 }
 
