@@ -5,8 +5,7 @@ langchain-openai
 langchain-community
 langgraph
 chromadb
-transformers
-torch --index-url https://download.pytorch.org/whl/cpu
+vaderSentiment
 prophet
 pandas
 numpy

@@ -1,24 +1,13 @@
-import os
-import uuid
+import pandas as pd
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from typing import TypedDict
-
 import chromadb
-from transformers import pipeline
+import uuid
+import os
 
-from agents.news_fetcher import fetch_headlines, fetch_live_headlines
-
-CHROMA_PATH = os.getenv("CHROMA_PATH", "./chroma_db")
-chroma_client = chromadb.PersistentClient(path=CHROMA_PATH)
+chroma_client = chromadb.PersistentClient(path=os.getenv("CHROMA_PATH", "./chroma_db"))
 collection = chroma_client.get_or_create_collection("sentiment_store")
-
-print("Loading FinBERT model...")
-finbert = pipeline(
-    "text-classification",
-    model="ProsusAI/finbert",
-    top_k=None,
-)
-print("FinBERT ready.")
-
+analyzer = SentimentIntensityAnalyzer()
 
 class AgentState(TypedDict):
     industry: str
@@ -30,87 +19,45 @@ class AgentState(TypedDict):
     competitor_delta: list[dict]
     insight_report: str
 
-
 def score_headline(text: str) -> dict:
-    raw_results = finbert(text[:512])
-
-    if raw_results and isinstance(raw_results, list) and isinstance(raw_results[0], list):
-        results = raw_results[0]
-    else:
-        results = raw_results
-
-    scores = {r["label"]: r["score"] for r in results}
-    sentiment_score = scores.get("positive", 0) - scores.get("negative", 0)
-
+    scores = analyzer.polarity_scores(text)
+    sentiment_score = round(scores["compound"], 4)
     if sentiment_score > 0.2:
         label = "bullish"
     elif sentiment_score < -0.2:
         label = "bearish"
     else:
         label = "neutral"
-
+    confidence = round(max(scores["pos"], scores["neg"], scores["neu"]) * 100, 1)
     return {
         "text": text,
-        "score": round(sentiment_score, 4),
+        "score": sentiment_score,
         "label": label,
-        "positive": round(scores.get("positive", 0), 4),
-        "negative": round(scores.get("negative", 0), 4),
-        "neutral": round(scores.get("neutral", 0), 4),
-        "confidence": round(
-            max(
-                scores.get("positive", 0),
-                scores.get("negative", 0),
-                scores.get("neutral", 0),
-            )
-            * 100,
-            2,
-        ),
+        "positive": round(scores["pos"], 4),
+        "negative": round(scores["neg"], 4),
+        "neutral": round(scores["neu"], 4),
+        "confidence_pct": confidence,
     }
-def store_in_chroma(scored: list[dict], brand: str, industry: str):
-    try:
-        for item in scored:
-            collection.add(
-                documents=[item["text"]],
-                metadatas=[{
-                    "score": item["score"],
-                    "label": item["label"],
-                    "brand": brand,
-                    "industry": industry,
-                    "confidence": item["confidence"],
-                }],
-                ids=[str(uuid.uuid4())],
-            )
-    except Exception as e:
-        print(f"[SentimentAgent] Chroma storage skipped: {e}")
 
+def load_financial_news_sample(n: int = 50) -> list[str]:
+    csv_path = os.path.join("data", "sentiment", "all-data.csv")
+    df = pd.read_csv(csv_path, encoding="latin-1", header=None, names=["label", "text"])
+    return df["text"].dropna().head(n).tolist()
+
+def store_in_chroma(scored: list[dict], brand: str, industry: str):
+    for item in scored:
+        collection.add(
+            documents=[item["text"]],
+            metadatas=[{"score": item["score"], "label": item["label"], "brand": brand, "industry": industry}],
+            ids=[str(uuid.uuid4())],
+        )
 
 def sentiment_agent(state: AgentState) -> AgentState:
+    headlines = state.get("headlines") or load_financial_news_sample(50)
     brand = state.get("brand", "General")
     industry = state.get("industry", "Finance")
-    provided_headlines = state.get("headlines") or []
-    if provided_headlines:
-        headlines = provided_headlines
-        print(f"[SentimentAgent] Using {len(headlines)} provided headlines.")
-    else:
-        live_headlines = fetch_live_headlines(brand=brand, industry=industry, page_size=50)
-        if len(live_headlines) >= 5:
-            headlines = live_headlines
-            print(f"[SentimentAgent] Using {len(headlines)} live NewsAPI headlines.")
-        else:
-            headlines = fetch_headlines(brand=brand, industry=industry, page_size=50)
-            print(f"[SentimentAgent] Using {len(headlines)} fallback CSV headlines.")
-
     scored = [score_headline(h) for h in headlines]
     store_in_chroma(scored, brand, industry)
-
-    avg_score = round(sum(s["score"] for s in scored) / len(scored), 4) if scored else 0.0
+    avg_score = round(sum(s["score"] for s in scored) / len(scored), 4)
     print(f"[SentimentAgent] {len(scored)} headlines | avg score: {avg_score}")
-
     return {**state, "sentiment_scores": scored}
-
-
-if __name__ == "__main__":
-    test_headlines = fetch_headlines("Marriott", "Hotels", page_size=10)
-    for h in test_headlines:
-        result = score_headline(h)
-        print(f"{result['label']:8s} {result['score']:+.3f} {result['confidence']:6.2f}% {h[:80]}")
