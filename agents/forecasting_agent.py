@@ -2,6 +2,8 @@ import pandas as pd
 from prophet import Prophet
 import os
 from agents.sentiment_agent import AgentState
+
+_forecast_cache = {}
  
  
 # ── Load hotel booking data and compute monthly ADR (avg daily rate) ──
@@ -82,6 +84,11 @@ def run_prophet(df: pd.DataFrame, periods: int = 90) -> list[dict]:
 # ── Main agent node ──────────────────────────────────────────────
 def forecasting_agent(state: AgentState) -> AgentState:
     industry = state.get("industry", "Hotels")
+    cache_key = industry.lower()
+    
+    if cache_key in _forecast_cache:
+        print(f"[ForecastingAgent] Using cached forecast for {industry}")
+        return {**state, "forecast": _forecast_cache[cache_key]}
     
     hotel_path = os.path.join("data", "hotel", "hotel_bookings.csv")
     airline_path = os.path.join("data", "airline", "train.csv")
@@ -107,6 +114,7 @@ def forecasting_agent(state: AgentState) -> AgentState:
             "day_60": forecast_list[59] if len(forecast_list) > 59 else {"forecast": None},
             "day_90": forecast_list[89] if len(forecast_list) > 89 else {"forecast": None},
         }
+        _forecast_cache[cache_key] = [summary]
         return {**state, "forecast": [summary]}
 
     except Exception as e:
@@ -130,6 +138,7 @@ def forecasting_agent(state: AgentState) -> AgentState:
             "day_60": {"forecast": round(base * (1 + trend * 2), 2)},
             "day_90": {"forecast": round(base * (1 + trend * 3), 2)},
         }
+        _forecast_cache[cache_key] = [summary]
         return {**state, "forecast": [summary]}
  
  

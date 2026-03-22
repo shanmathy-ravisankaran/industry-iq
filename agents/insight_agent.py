@@ -9,12 +9,13 @@ load_dotenv()
 llm = ChatOpenAI(
     model="gpt-4o-mini",          # cost-efficient, fast
     temperature=0.3,
+    max_tokens=300,
     api_key=os.getenv("OPENAI_API_KEY"),
 )
  
 SYSTEM_PROMPT = """You are an expert industry analyst AI. You receive structured 
 data from multiple analysis agents and produce a concise, actionable executive 
-summary in plain English. Be specific with numbers. Keep it under 150 words."""
+summary in plain English. Be specific with numbers. Keep it under 80 words."""
  
  
 def build_context(state: AgentState) -> str:
