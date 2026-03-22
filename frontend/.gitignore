@@ -1,0 +1,17 @@
+.env
+.env.local
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.python-version
+data/
+*.db
+db/history.db
+db/industryiq.db
+chroma_db/
+*.log
+node_modules/
+.next/
+.DS_Store
+Thumbs.db

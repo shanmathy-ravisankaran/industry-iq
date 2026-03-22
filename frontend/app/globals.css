@@ -1,0 +1,101 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f4efe5;
+  --panel: rgba(255, 252, 247, 0.82);
+  --panel-strong: #fffdf9;
+  --card: #fffdf9;
+  --input-bg: #f8fafc;
+  --foreground: #1f2937;
+  --muted: #6b7280;
+  --border: rgba(120, 113, 108, 0.22);
+  --accent: #1d9e75;
+  --accent-soft: #ccfbf1;
+  --accent-strong: #157a5a;
+  --danger: #d85a30;
+  --danger-soft: #ffedd5;
+  --shadow: 0 24px 80px rgba(41, 37, 36, 0.12);
+  --grid: #d6d3d1;
+  --hero-grad-1: rgba(15, 118, 110, 0.16);
+  --hero-grad-2: rgba(251, 191, 36, 0.18);
+}
+
+html.dark {
+  --background: #0f0f0f;
+  --panel: rgba(26, 26, 26, 0.9);
+  --panel-strong: #1a1a1a;
+  --card: #1a1a1a;
+  --input-bg: #151515;
+  --foreground: #f5f5f5;
+  --muted: #a0a0a0;
+  --border: #2a2a2a;
+  --accent: #1d9e75;
+  --accent-soft: rgba(29, 158, 117, 0.18);
+  --accent-strong: #178563;
+  --danger: #d85a30;
+  --danger-soft: rgba(216, 90, 48, 0.12);
+  --shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+  --grid: #2f2f2f;
+  --hero-grad-1: rgba(29, 158, 117, 0.12);
+  --hero-grad-2: rgba(216, 90, 48, 0.1);
+}
+
+* {
+  box-sizing: border-box;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    fill 0.2s ease,
+    stroke 0.2s ease;
+}
+
+html {
+  background:
+    radial-gradient(circle at top left, var(--hero-grad-1), transparent 28%),
+    radial-gradient(circle at top right, var(--hero-grad-2), transparent 32%),
+    linear-gradient(180deg, #faf7f2 0%, var(--background) 100%);
+}
+
+body {
+  margin: 0;
+  color: var(--foreground);
+  background: transparent;
+}
+
+button,
+select,
+input {
+  font: inherit;
+}
+
+::selection {
+  background: rgba(20, 184, 166, 0.22);
+}
+
+.themed-card {
+  border: 1px solid var(--border);
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.themed-card-strong {
+  border: 1px solid var(--border);
+  background: var(--panel-strong);
+}
+
+.themed-surface {
+  border: 1px solid var(--border);
+  background: var(--card);
+}
+
+.themed-input {
+  border: 1px solid var(--border);
+  background: var(--input-bg);
+  color: var(--foreground);
+}
+
+.themed-subtle {
+  background: color-mix(in srgb, var(--card) 70%, transparent);
+  color: var(--muted);
+}
