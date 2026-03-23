@@ -1,79 +1,78 @@
-# 🏨 IndustryIQ — Multi-Agent AI Intelligence Dashboard
+# IndustryIQ - Multi-Agent AI Intelligence Dashboard
 
 > **Live Demo**: https://industry-iq.vercel.app  
-> **Backend API**: https://web-production-47a64.up.railway.app/health
-
-![IndustryIQ Dashboard](https://industry-iq.vercel.app/og-preview.png)
+> **Backend API**: https://web-production-47a64.up.railway.app/health  
+> **Open Dashboard**: https://industry-iq.vercel.app
 
 A production-grade multi-agent AI system that analyzes brand sentiment,
 forecasts demand, detects anomalies, and generates executive intelligence
-reports — across hotels, airlines, and finance industries.
+reports across hotels, airlines, and finance industries.
 
 ---
 
-## 🚀 Live Demo
+## Live Demo
 
-🔗 **Try it now → [industry-iq.vercel.app](https://industry-iq.vercel.app)**
+Try it here: [industry-iq.vercel.app](https://industry-iq.vercel.app)
 
 Select any industry and brand, click **Run agents**, and watch 5 AI
 agents collaborate to produce a complete intelligence briefing in real time.
 
 ---
 
-## 🤖 How It Works — 5-Agent Pipeline
+## How It Works - 5-Agent Pipeline
 
 ```text
 User Query
-│
-▼
-┌─────────────────────────────────────────────┐
-│           LangGraph Orchestrator             │
-│                                             │
-│  ┌─────────────┐    ┌─────────────────────┐ │
-│  │  Sentiment  │───▶│   Forecasting Agent │ │
-│  │   Agent     │    │  (Prophet 30/60/90d)│ │
-│  │  (VADER NLP)│    └─────────────────────┘ │
-│  └─────────────┘    ┌─────────────────────┐ │
-│         │           │   Anomaly Agent     │ │
-│         ├──────────▶│   (Z-score detect)  │ │
-│         │           └─────────────────────┘ │
-│         │           ┌─────────────────────┐ │
-│         └──────────▶│  Competitor Agent   │ │
-│                     │  (ChromaDB RAG)     │ │
-│                     └─────────────────────┘ │
-│                              │              │
-│                              ▼              │
-│                     ┌─────────────────────┐ │
-│                     │   Insight Agent     │ │
-│                     │   (GPT-4o-mini)     │ │
-│                     └─────────────────────┘ │
-└─────────────────────────────────────────────┘
-│
-▼
+|
+v
++---------------------------------------------+
+|           LangGraph Orchestrator            |
+|                                             |
+|  +-------------+    +---------------------+ |
+|  |  Sentiment  |--->|   Forecasting Agent | |
+|  |   Agent     |    |  (Prophet 30/60/90d)| |
+|  |  (VADER NLP)|    +---------------------+ |
+|  +-------------+    +---------------------+ |
+|         |           |   Anomaly Agent     | |
+|         +---------->|   (Z-score detect)  | |
+|         |           +---------------------+ |
+|         |           +---------------------+ |
+|         +---------->|  Competitor Agent   | |
+|                     |  (ChromaDB RAG)     | |
+|                     +---------------------+ |
+|                              |              |
+|                              v              |
+|                     +---------------------+ |
+|                     |   Insight Agent     | |
+|                     |   (GPT-4o-mini)     | |
+|                     +---------------------+ |
++---------------------------------------------+
+|
+v
 Dashboard (Next.js + Recharts + Dark Mode)
 SQLite Run History + PDF Export + ChromaDB
 ```
 
 ---
 
-## ✨ Features
+## Features
 
 | Feature | Description |
 |---|---|
-| 🧠 **5-Agent Pipeline** | LangGraph orchestrates sentiment, forecast, anomaly, competitor, insight agents |
-| 📰 **Live News Feed** | NewsAPI fetches real headlines per brand |
-| 📈 **Demand Forecasting** | Facebook Prophet projects 30/60/90-day outlook |
-| 🚨 **Anomaly Detection** | Z-score flags unusual sentiment spikes or drops |
-| 🏆 **Competitor Ranking** | ChromaDB-powered peer sentiment comparison |
-| 🤖 **GPT-4 Insights** | Executive brief generated per run |
-| 🌙 **Dark Mode** | Full dark/light theme toggle |
-| 📊 **Run History** | SQLite stores every run with timeline chart |
-| 📄 **PDF + CSV Export** | Download full intelligence report |
-| 🌍 **Global Timezone** | Timestamps auto-convert to user local time |
+| 5-Agent Pipeline | LangGraph orchestrates sentiment, forecast, anomaly, competitor, and insight agents |
+| Live News Feed | NewsAPI fetches real headlines per brand |
+| Demand Forecasting | Facebook Prophet projects 30/60/90-day outlook |
+| Anomaly Detection | Z-score flags unusual sentiment spikes or drops |
+| Competitor Ranking | ChromaDB-powered peer sentiment comparison |
+| GPT-4 Insights | Executive brief generated per run |
+| Dark Mode | Full dark/light theme toggle |
+| Run History | SQLite stores every run with timeline chart |
+| PDF + CSV Export | Download full intelligence report |
+| Global Timezone | Timestamps auto-convert to user local time |
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 **Backend**
 - Python, FastAPI, LangGraph, LangChain
@@ -90,7 +89,7 @@ SQLite Run History + PDF Export + ChromaDB
 
 ---
 
-## ⚡ Local Setup
+## Local Setup
 
 ### Prerequisites
 - Python 3.11+
@@ -119,20 +118,23 @@ See **Environment Variables** section below for what keys are needed.
 
 ### 4. Create frontend/.env.local
 Create `frontend/.env.local` and set the backend URL:
-NEXT_PUBLIC_API_URL=http://localhost:8000
 
-## 🔑 Environment Variables
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
+
+## Environment Variables
 
 | Variable | Where to get it | Required |
 |---|---|---|
-| `OPENAI_API_KEY` | platform.openai.com | ✅ Yes |
-| `NEWSAPI_KEY` | newsapi.org (free) | ✅ Yes |
-| `CHROMA_PATH` | Set to `./chroma_db` | ✅ Yes |
-| `DB_PATH` | Set to `./db/history.db` | ✅ Yes |
-| `PORT` | Set to `8000` | ✅ Yes |
-| `NEXT_PUBLIC_API_URL` | Your Railway URL in production | ✅ Yes |
+| `OPENAI_API_KEY` | platform.openai.com | Yes |
+| `NEWSAPI_KEY` | newsapi.org (free) | Yes |
+| `CHROMA_PATH` | Set to `./chroma_db` | Yes |
+| `DB_PATH` | Set to `./db/history.db` | Yes |
+| `PORT` | Set to `8000` | Yes |
+| `NEXT_PUBLIC_API_URL` | Your Railway URL in production | Yes |
 
-> ⚠️ Never commit your `.env` file to GitHub.
+> Never commit your `.env` file to GitHub.  
 > It is already added to `.gitignore`.
 
 ```text
@@ -157,22 +159,10 @@ industry-iq/
 
 ---
 
-## 📊 Supported Industries & Brands
+## Supported Industries & Brands
 
 | Industry | Brands |
 |---|---|
-| 🏨 Hotels | Marriott, Hilton, IHG, Hyatt, Wyndham |
-| ✈️ Airlines | Delta, United, American, Southwest, JetBlue |
-| 💰 Finance | JPMorgan, Goldman, Morgan Stanley, Citi, BofA |
-
----
-
-## 🏗 Built in 2 days as an AI portfolio project
-
-**Author**: Shanmathy Ravisankaran  
-**LinkedIn**: https://www.linkedin.com/in/shanmathy03/  
-**Portfolio**: https://shanmathy-ravisankaran.github.io/portfolio/
-
----
-
-⭐ Star this repo if you found it useful!
+| Hotels | Marriott, Hilton, IHG, Hyatt, Wyndham |
+| Airlines | Delta, United, American, Southwest, JetBlue |
+| Finance | JPMorgan, Goldman, Morgan Stanley, Citi, BofA |
