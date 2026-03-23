@@ -1,8 +1,7 @@
 # IndustryIQ - Multi-Agent AI Intelligence Dashboard
 
-> **Live Demo**: https://industry-iq.vercel.app  
-> **Backend API**: https://web-production-47a64.up.railway.app/health  
-> **Open Dashboard**: https://industry-iq.vercel.app
+> **Live App**: https://industry-iq.vercel.app  
+> **Backend API**: https://web-production-47a64.up.railway.app/health
 
 A production-grade multi-agent AI system that analyzes brand sentiment,
 forecasts demand, detects anomalies, and generates executive intelligence
@@ -11,8 +10,6 @@ reports across hotels, airlines, and finance industries.
 ---
 
 ## Live Demo
-
-Try it here: [industry-iq.vercel.app](https://industry-iq.vercel.app)
 
 Select any industry and brand, click **Run agents**, and watch 5 AI
 agents collaborate to produce a complete intelligence briefing in real time.
