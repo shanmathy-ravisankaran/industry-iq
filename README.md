@@ -1,109 +1,178 @@
-# IndustryIQ
+# 🏨 IndustryIQ — Multi-Agent AI Intelligence Dashboard
 
-IndustryIQ is a multi-agent AI dashboard for tracking brand sentiment, short-term forecasting, anomaly detection, competitor positioning, and executive insights across industries like hotels, airlines, and finance.
+> **Live Demo**: https://industry-iq.vercel.app  
+> **Backend API**: https://web-production-47a64.up.railway.app/health
 
-## Architecture
+![IndustryIQ Dashboard](https://industry-iq.vercel.app/og-preview.png)
+
+A production-grade multi-agent AI system that analyzes brand sentiment,
+forecasts demand, detects anomalies, and generates executive intelligence
+reports — across hotels, airlines, and finance industries.
+
+---
+
+## 🚀 Live Demo
+
+🔗 **Try it now → [industry-iq.vercel.app](https://industry-iq.vercel.app)**
+
+Select any industry and brand, click **Run agents**, and watch 5 AI
+agents collaborate to produce a complete intelligence briefing in real time.
+
+---
+
+## 🤖 How It Works — 5-Agent Pipeline
 
 ```text
-Frontend (Next.js 16 + Tailwind + Recharts)
-        |
-        v
-Backend API (FastAPI)
-        |
-        v
-LangGraph Pipeline
-  1. Sentiment Agent   -> FinBERT scores live NewsAPI headlines
-  2. Forecasting Agent -> Prophet projects 30/60/90 day outlook
-  3. Anomaly Agent     -> z-score detection on sentiment outliers
-  4. Competitor Agent  -> ChromaDB-based peer sentiment ranking
-  5. Insight Agent     -> GPT-generated executive brief
-        |
-        +--> SQLite run history
-        +--> PDF export
-        +--> ChromaDB sentiment store
+User Query
+│
+▼
+┌─────────────────────────────────────────────┐
+│           LangGraph Orchestrator             │
+│                                             │
+│  ┌─────────────┐    ┌─────────────────────┐ │
+│  │  Sentiment  │───▶│   Forecasting Agent │ │
+│  │   Agent     │    │  (Prophet 30/60/90d)│ │
+│  │  (VADER NLP)│    └─────────────────────┘ │
+│  └─────────────┘    ┌─────────────────────┐ │
+│         │           │   Anomaly Agent     │ │
+│         ├──────────▶│   (Z-score detect)  │ │
+│         │           └─────────────────────┘ │
+│         │           ┌─────────────────────┐ │
+│         └──────────▶│  Competitor Agent   │ │
+│                     │  (ChromaDB RAG)     │ │
+│                     └─────────────────────┘ │
+│                              │              │
+│                              ▼              │
+│                     ┌─────────────────────┐ │
+│                     │   Insight Agent     │ │
+│                     │   (GPT-4o-mini)     │ │
+│                     └─────────────────────┘ │
+└─────────────────────────────────────────────┘
+│
+▼
+Dashboard (Next.js + Recharts + Dark Mode)
+SQLite Run History + PDF Export + ChromaDB
 ```
 
-## Local Setup
+---
 
-1. Clone the repo.
-2. Create and activate a Python virtual environment.
-3. Install backend dependencies:
+## ✨ Features
 
-```powershell
+| Feature | Description |
+|---|---|
+| 🧠 **5-Agent Pipeline** | LangGraph orchestrates sentiment, forecast, anomaly, competitor, insight agents |
+| 📰 **Live News Feed** | NewsAPI fetches real headlines per brand |
+| 📈 **Demand Forecasting** | Facebook Prophet projects 30/60/90-day outlook |
+| 🚨 **Anomaly Detection** | Z-score flags unusual sentiment spikes or drops |
+| 🏆 **Competitor Ranking** | ChromaDB-powered peer sentiment comparison |
+| 🤖 **GPT-4 Insights** | Executive brief generated per run |
+| 🌙 **Dark Mode** | Full dark/light theme toggle |
+| 📊 **Run History** | SQLite stores every run with timeline chart |
+| 📄 **PDF + CSV Export** | Download full intelligence report |
+| 🌍 **Global Timezone** | Timestamps auto-convert to user local time |
+
+---
+
+## 🛠 Tech Stack
+
+**Backend**
+- Python, FastAPI, LangGraph, LangChain
+- VADER Sentiment, Facebook Prophet
+- ChromaDB, SQLite, ReportLab
+- OpenAI GPT-4o-mini, NewsAPI
+
+**Frontend**
+- Next.js 16, TypeScript, Tailwind CSS
+- Recharts, Dark mode
+
+**Deployment**
+- Railway (backend), Vercel (frontend)
+
+---
+
+## ⚡ Local Setup
+
+### Prerequisites
+- Python 3.11+
+- Node.js 18+
+- OpenAI API key
+- NewsAPI key (free at newsapi.org)
+
+### 1. Clone and install backend
+```bash
+git clone https://github.com/shanmathy-ravisankaran/industry-iq.git
+cd industry-iq
+python -m venv venv
+venv\Scripts\activate  # Windows
 pip install -r requirements.txt
 ```
 
-4. Install frontend dependencies:
-
-```powershell
+### 2. Install frontend
+```bash
 cd frontend
 npm install
 ```
 
-5. Create a root `.env` file:
+### 3. Create .env file
+Create a `.env` file in the root directory with your API keys.
+See **Environment Variables** section below for what keys are needed.
 
-```env
-OPENAI_API_KEY=your_openai_key
-NEWSAPI_KEY=your_newsapi_key
-CHROMA_PATH=./chroma_db
-DB_PATH=./db/history.db
-PORT=8000
+### 4. Create frontend/.env.local
+Create `frontend/.env.local` and set the backend URL:
+NEXT_PUBLIC_API_URL=http://localhost:8000
+
+## 🔑 Environment Variables
+
+| Variable | Where to get it | Required |
+|---|---|---|
+| `OPENAI_API_KEY` | platform.openai.com | ✅ Yes |
+| `NEWSAPI_KEY` | newsapi.org (free) | ✅ Yes |
+| `CHROMA_PATH` | Set to `./chroma_db` | ✅ Yes |
+| `DB_PATH` | Set to `./db/history.db` | ✅ Yes |
+| `PORT` | Set to `8000` | ✅ Yes |
+| `NEXT_PUBLIC_API_URL` | Your Railway URL in production | ✅ Yes |
+
+> ⚠️ Never commit your `.env` file to GitHub.
+> It is already added to `.gitignore`.
+
+```text
+industry-iq/
+├── agents/
+│   ├── sentiment_agent.py    # VADER sentiment scoring
+│   ├── forecasting_agent.py  # Prophet time-series
+│   ├── anomaly_agent.py      # Z-score detection
+│   ├── competitor_agent.py   # ChromaDB peer ranking
+│   ├── insight_agent.py      # GPT-4 executive brief
+│   ├── news_fetcher.py       # NewsAPI integration
+│   └── graph.py              # LangGraph pipeline
+├── db/
+│   └── database.py           # SQLite run history
+├── frontend/
+│   └── app/
+│       └── page.tsx          # Main dashboard
+├── main.py                   # FastAPI backend
+├── requirements.txt
+└── README.md
 ```
 
-6. Start the backend:
+---
 
-```powershell
-cd c:\Users\shaha\industry-iq
-venv\Scripts\python.exe -m uvicorn main:app --host 0.0.0.0 --port 8000
-```
+## 📊 Supported Industries & Brands
 
-7. Start the frontend:
+| Industry | Brands |
+|---|---|
+| 🏨 Hotels | Marriott, Hilton, IHG, Hyatt, Wyndham |
+| ✈️ Airlines | Delta, United, American, Southwest, JetBlue |
+| 💰 Finance | JPMorgan, Goldman, Morgan Stanley, Citi, BofA |
 
-```powershell
-cd c:\Users\shaha\industry-iq\frontend
-npm run dev
-```
+---
 
-8. Open `http://localhost:3000`.
+## 🏗 Built in 2 days as an AI portfolio project
 
-## Environment Variables
+**Author**: Shanmathy Ravisankaran  
+**LinkedIn**: https://www.linkedin.com/in/shanmathy03/  
+**Portfolio**: https://shanmathy-ravisankaran.github.io/portfolio/
 
-- `OPENAI_API_KEY`: OpenAI key for executive brief generation
-- `NEWSAPI_KEY`: NewsAPI key for live headline fetching
-- `CHROMA_PATH`: ChromaDB storage path
-- `DB_PATH`: SQLite database path
-- `PORT`: backend port for local/dev/prod runtime
-- `NEXT_PUBLIC_API_URL`: frontend API base URL, usually set in `frontend/.env.local`
+---
 
-## Deployment
-
-### Railway Backend
-
-- Uses `Procfile`
-- Uses `railway.json`
-- Set these Railway variables:
-  - `OPENAI_API_KEY`
-  - `NEWSAPI_KEY`
-  - `CHROMA_PATH`
-  - `DB_PATH`
-  - `PORT`
-
-### Vercel Frontend
-
-- Set `NEXT_PUBLIC_API_URL` to your Railway backend URL
-- `frontend/vercel.json` is included
-
-## Tech Stack
-
-- FastAPI
-- LangGraph
-- LangChain
-- OpenAI
-- FinBERT via Transformers
-- Prophet
-- ChromaDB
-- SQLite
-- ReportLab
-- Next.js 16
-- Tailwind CSS
-- Recharts
+⭐ Star this repo if you found it useful!
